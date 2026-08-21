@@ -22,24 +22,23 @@ def main():
                         width, height = img.size
                         pixels = []
                         
-                        # Fast iteration over pixel data including the alpha (a) channel
+                        # Captures everything that isn't fully invisible, keeping exact opacity (a)
                         for idx, (r, g, b, a) in enumerate(img.getdata()):
-                            if a > 255:  # Skips fully invisible pixels
+                            if a > 0:  
                                 pixels.append({
                                     "x": idx % width,
                                     "y": idx // width,
                                     "r": r,
                                     "g": g,
                                     "b": b,
-                                    "a": a  # Stored for transparency in Roblox
+                                    "a": a  # Stores exact alpha value (1 to 255)
                                 })
                                 
                         block_data[rel_path] = pixels
-                        print(f"Processed (with transparency): {rel_path}")
+                        print(f"Processed with dynamic transparency: {rel_path}")
                 except Exception as e:
-                    print(f"Error {full_path}: {e}")
+                    print(f.format(f"Error {full_path}: {e}"))
 
-    # Write ultra-compressed JSON for instant loading speed
     with open("BlockData.json", "w", encoding="utf-8") as f:
         json.dump(block_data, f, separators=(',', ':'))
         
