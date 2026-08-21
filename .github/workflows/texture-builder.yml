@@ -3,7 +3,8 @@ name: Generate Block Data
 on:
   push:
     paths:
-      - 'assets/blocks/basic/**'
+      - 'assets/**'  # <-- This watches everything inside assets and its subfolders!
+  workflow_dispatch:
 
 jobs:
   build:
