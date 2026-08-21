@@ -1,50 +1,62 @@
 import os
+import json
 from PIL import Image
 
-root_assets_dir = "assets"
-output_lua = "BlockData.lua"
+def generate_block_data():
+    block_data = {}
+    assets_dir = "assets"
+    
+    # Check if the assets directory exists
+    if not os.path.exists(assets_dir):
+        print(f"Warning: Directory '{assets_dir}' not found.")
+        # Write an empty JSON file so the build doesn't fail outright
+        with open("BlockData.json", "w", encoding="utf-8") as f:
+            json.dump({}, f)
+        return
 
-block_data = {}
-
-if os.path.exists(root_assets_dir):
-    # os.walk goes through all subfolders recursively
-    for dirpath, _, filenames in os.walk(root_assets_dir):
-        for filename in filenames:
-            if filename.lower().endswith(".png"):
-                # Get the full relative path, e.g., "assets/blocks/basic/white.png"
-                full_path = os.path.join(dirpath, filename).replace("\\", "/")
+    # Recursively look through all folders and subfolders in 'assets/'
+    for root, dirs, files in os.walk(assets_dir):
+        for file in files:
+            if file.lower().endswith(".png"):
+                full_path = os.path.join(root, file)
                 
-                # Optional: lowercase the key to prevent capitalization typos in Roblox
-                key_name = full_path.lower()
+                # Create a clean relative path (e.g., "assets/blocks/basic/white.png")
+                # and ensure forward slashes are used for cross-platform consistency
+                relative_path = os.path.relpath(full_path, ".").replace("\\", "/")
                 
-                img_path = os.path.join(dirpath, filename)
-                with Image.open(img_path).convert("RGBA") as img:
+                try:
+                    img = Image.open(full_path).convert("RGBA")
                     width, height = img.size
-                    pixels = img.load()
+                    pixels = []
                     
-                    pixel_list = []
                     for y in range(height):
                         for x in range(width):
-                            r, g, b, a = pixels[x, y]
-                            if a > 0:  # If not fully transparent
-                                pixel_list.append({
+                            r, g, b, a = img.getpixel((x, y))
+                            
+                            # Optional optimization: Skip fully transparent pixels (alpha == 0)
+                            # to keep your JSON file size small and snappy!
+                            if a > 0:
+                                pixels.append({
                                     "x": x,
                                     "y": y,
                                     "r": r,
                                     "g": g,
                                     "b": b
                                 })
+                                
+                    block_data[relative_path] = pixels
+                    print(f"Successfully processed: {relative_path}")
                     
-                    block_data[key_name] = pixel_list
+                except Exception as e:
+                    print(f"Error processing image {full_path}: {e}")
 
-# Write out the Luau module file
-with open(output_lua, "w") as f:
-    f.write("return {\n")
-    for path_key, data in block_data.items():
-        f.write(f'\t["{path_key}"] = {{\n')
-        for p in data:
-            f.write(f'\t\t{{x = {p["x"]}, y = {p["y"]}, r = {p["r"]}, g = {p["g"]}, b = {p["b"]}}},\n')
-        f.write("\t},\n")
-    f.write("}\n")
+    # Write out the final data dictionary to BlockData.json
+    output_file = "BlockData.json"
+    with open(output_file, "w", encoding="utf-8") as f:
+        # indent=None keeps the file compact and fast to download over HTTP
+        json.dump(block_data, f, indent=None)
+        
+    print(f"Successfully generated {output_file} containing {len(block_data)} assets.")
 
-print("BlockData.lua generated successfully with recursive paths!")
+if __name__ == "__main__":
+    generate_block_data()
