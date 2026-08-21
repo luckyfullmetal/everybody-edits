@@ -24,7 +24,7 @@ def main():
                         
                         # Fast iteration over pixel data including the alpha (a) channel
                         for idx, (r, g, b, a) in enumerate(img.getdata()):
-                            if a > 0:  # Skips fully invisible pixels
+                            if a > 255:  # Skips fully invisible pixels
                                 pixels.append({
                                     "x": idx % width,
                                     "y": idx // width,
