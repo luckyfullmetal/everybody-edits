@@ -22,19 +22,20 @@ def main():
                         width, height = img.size
                         pixels = []
                         
-                        # Fast linear iteration over pixel data
+                        # Fast iteration over pixel data including the alpha (a) channel
                         for idx, (r, g, b, a) in enumerate(img.getdata()):
-                            if a > 0:
+                            if a > 0:  # Skips fully invisible pixels
                                 pixels.append({
                                     "x": idx % width,
                                     "y": idx // width,
                                     "r": r,
                                     "g": g,
-                                    "b": b
+                                    "b": b,
+                                    "a": a  # Stored for transparency in Roblox
                                 })
                                 
                         block_data[rel_path] = pixels
-                        print(f"Processed: {rel_path}")
+                        print(f"Processed (with transparency): {rel_path}")
                 except Exception as e:
                     print(f"Error {full_path}: {e}")
 
