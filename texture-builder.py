@@ -22,7 +22,7 @@ def main():
                         width, height = img.size
                         pixels = []
                         
-                        # Fast linear iteration over pixel data
+                        # Fast linear iteration including alpha ('a')
                         for idx, (r, g, b, a) in enumerate(img.getdata()):
                             if a > 0:
                                 pixels.append({
@@ -30,7 +30,8 @@ def main():
                                     "y": idx // width,
                                     "r": r,
                                     "g": g,
-                                    "b": b
+                                    "b": b,
+                                    "a": a  # <--- Added alpha channel tracking
                                 })
                                 
                         block_data[rel_path] = pixels
@@ -38,7 +39,7 @@ def main():
                 except Exception as e:
                     print(f"Error {full_path}: {e}")
 
-    # Write ultra-compressed JSON for instant loading speed
+    # Write ultra-compressed JSON
     with open("BlockData.json", "w", encoding="utf-8") as f:
         json.dump(block_data, f, separators=(',', ':'))
         
