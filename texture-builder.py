@@ -22,7 +22,7 @@ def generate_block_data():
                 
                 # Create a clean relative path (e.g., "assets/blocks/basic/white.png")
                 # and ensure forward slashes are used for cross-platform consistency
-                relative_path = os.path.relpath(full_path, ".").replace("\\", "/")
+                relative_path = os.path.relpath(full_path, ".").replace("\\", "/").lower()
                 
                 try:
                     img = Image.open(full_path).convert("RGBA")
