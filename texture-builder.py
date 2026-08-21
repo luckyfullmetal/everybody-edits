@@ -22,23 +22,23 @@ def main():
                         width, height = img.size
                         pixels = []
                         
-                        # Captures everything that isn't fully invisible, keeping exact opacity (a)
+                        # Fast linear iteration over pixel data
                         for idx, (r, g, b, a) in enumerate(img.getdata()):
-                            if a > 0:  
+                            if a > 0:
                                 pixels.append({
                                     "x": idx % width,
                                     "y": idx // width,
                                     "r": r,
                                     "g": g,
-                                    "b": b,
-                                    "a": a  # Stores exact alpha value (1 to 255)
+                                    "b": b
                                 })
                                 
                         block_data[rel_path] = pixels
-                        print(f"Processed with dynamic transparency: {rel_path}")
+                        print(f"Processed: {rel_path}")
                 except Exception as e:
-                    print(f.format(f"Error {full_path}: {e}"))
+                    print(f"Error {full_path}: {e}")
 
+    # Write ultra-compressed JSON for instant loading speed
     with open("BlockData.json", "w", encoding="utf-8") as f:
         json.dump(block_data, f, separators=(',', ':'))
         
